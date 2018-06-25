@@ -19,15 +19,21 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
 // and minimize distance between Arduino and first pixel.  Avoid connecting
 // on a live circuit...if you must, connect GND first.
+int sensorPin = A0; //Potentiomètre pour la luminosité
+int luminositeValue = 0; //variable pour luminosité
+
+
 
 void setup() {
  
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+  strip.setBrightness(luminositeValue);//réglage de la luminosité
 }
 
 void loop() {
- 
+  luminositeValue = analogRead(sensorPin);
+  strip.setBrightness(luminositeValue);//réglage de la luminosité
   rainbowCycle(20);
   //theaterChaseRainbow(50);
 }
