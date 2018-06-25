@@ -1,0 +1,69 @@
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+
+#define PIN 6
+
+// Parameter 1 = nombre de pixel dans le bandeau
+// Parameter 2 = numéro de broche Arduino (la lpupart fonctionnent)
+// Parameter 3 = type de pixel, ajoutez par paire selon les besoins
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+//   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+
+// IMPORTANT: Pour réduire le risque de surtension, ajouter un condensateur de 1000 uF
+// entre les bornes d'allimentation, ajoutez une résistance de 300 - 500 Ohm sur la broche "donnée" du premier pixel
+// et minimisez la distance entre l'Arduino et le premier pixel.  Evitez de connecter sur un circuit
+// sous tension...si vous devez le faire, brancher GND en premier.
+int luminositeValue = 64; //variable pour luminosité à ajuster en fonction des besoins
+
+
+
+void setup() {
+ 
+  strip.begin(); //début de la transmission d'informations
+  strip.show(); // initialise tous les pixels sur "off"
+  strip.setBrightness(luminositeValue);//réglage de la luminosité
+}
+
+void loop() {
+  luminositeValue = analogRead(sensorPin);
+   rainbowCycle(20);
+  //theaterChaseRainbow(50); //un autre type d'arc en ciel possible
+}
+
+// crée un arc en ciel répartit sur la longueur du bandeau
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+
+  for(j=0; j<256*5; j++) { // 5 cycles pour chaque couleur sur le bandeau
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(wait);
+  }
+}
+
+
+//Lignes qui se déplacent avec un effet arc-en-ciel
+void theaterChaseRainbow(uint8_t wait) {
+  for (int j=0; j < 256; j++) {     // affiche les 256 couleurs 
+    for (int q=0; q < 3; q++) {
+      for (uint16_t i=0; i < strip.numPixels(); i=i+3) {
+        strip.setPixelColor(i+q, Wheel( (i+j) % 255));    //allume chacune des LED RGB du pixel 
+      }
+      strip.show();
+
+      delay(wait);
+
+      for (uint16_t i=0; i < strip.numPixels(); i=i+3) {
+        strip.setPixelColor(i+q, 0);        //turn every third pixel off
+      }
+    }
+  }
+}
